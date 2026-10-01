@@ -57,7 +57,7 @@ def get_data():
 
 
 def plot_prep(over="birth_century"):
-    """Prepare one distinct language count for each author with a birth year."""
+    """Prepare language counts for authors with known birth years."""
     authors = get_data()
     authors["language"] = authors["language"].str.split("/")
     authors = authors.explode("language")

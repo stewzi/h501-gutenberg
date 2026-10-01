@@ -47,7 +47,7 @@ class GutenbergTests(unittest.TestCase):
         )
 
     def test_plot_uses_authors_without_aliases(self):
-        with patch("tt_gutenberg.authors.get_data", return_value=(
+        with patch("tt_gutenberg.transform.get_data", return_value=(
             self.authors.merge(
                 self.metadata, on="gutenberg_author_id", how="left"
             )
