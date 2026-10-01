@@ -50,7 +50,9 @@ def get_data():
     data = DATA() if callable(DATA) else DATA
     authors = data["df_authors"]
     metadata = data["df_metadata"]
-    details = authors.drop(columns=["author"], errors="ignore")
+    details = authors.drop(columns=["author"], errors="ignore").rename(
+        columns={"alias": "author_alias"}
+    )
     return metadata[["gutenberg_author_id", "author", "language"]].merge(
         details, on="gutenberg_author_id", how="left"
     )

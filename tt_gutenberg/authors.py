@@ -11,7 +11,9 @@ def list_authors(by_languages=False, alias=False):
     Authors with no recorded language receive zero. Ties retain source order.
     """
     authors = get_data()
-    column = "alias" if alias else "author"
+    column = "author_alias" if alias else "author"
+    if "alias" in authors.columns and "author_alias" not in authors.columns:
+        authors = authors.rename(columns={"alias": "author_alias"})
     if column not in authors.columns:
         authors = authors.reset_index()
     if by_languages:
@@ -53,8 +55,8 @@ def plot_translations(over="birth_century"):
     ax.set(
         xlabel="Birth century (starting year)",
         ylabel="Mean number of distinct languages per author",
-        title="Project Gutenberg languages by author birth century",
     )
+    ax.set_title("Average number of translations by birth century")
     ax.tick_params(axis="x", rotation=90)
     ax.figure.set_size_inches(12, 5)
     ax.figure.tight_layout()
