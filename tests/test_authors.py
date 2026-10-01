@@ -31,8 +31,10 @@ class GutenbergTests(unittest.TestCase):
         self.assertEqual(result["translation_count"].tolist(), [2, 1, 0, 1, 0])
 
     def test_alias_ranking_and_source_order_ties(self):
-        with patch("tt_gutenberg.authors.load_data", return_value=(
-            self.authors, self.metadata
+        with patch("tt_gutenberg.authors.get_data", return_value=(
+            self.authors.merge(
+                self.metadata, on="gutenberg_author_id", how="left"
+            )
         )):
             result = list_authors(by_languages=True, alias=True)
         self.assertEqual(result, ["Alias A", "Alias C", "Alias E"])
@@ -45,8 +47,10 @@ class GutenbergTests(unittest.TestCase):
         )
 
     def test_plot_uses_authors_without_aliases(self):
-        with patch("tt_gutenberg.authors.load_data", return_value=(
-            self.authors, self.metadata
+        with patch("tt_gutenberg.authors.get_data", return_value=(
+            self.authors.merge(
+                self.metadata, on="gutenberg_author_id", how="left"
+            )
         )):
             ax = plot_translations()
         self.assertEqual(len(ax.patches), 3)
