@@ -40,20 +40,29 @@ def birth_centuries(authors):
 
 
 def DATA():
-    """Return the dataset base URL without reading data at import time."""
-    return (
-        "https://raw.githubusercontent.com/rfordatascience/tidytuesday/"
-        "main/data/2025/2025-06-03"
-    )
+    """Load source tables lazily, keeping imports free of network calls."""
+    authors, metadata = load_data()
+    return {"df_authors": authors, "df_metadata": metadata}
 
 
 def get_data():
     """Merge author details with each work's language metadata."""
-    base = DATA() if callable(DATA) else DATA
-    authors = pd.read_csv(f"{base}/gutenberg_authors.csv")
-    metadata = pd.read_csv(f"{base}/gutenberg_metadata.csv")
-    return authors.merge(
-        metadata[["gutenberg_author_id", "language"]],
-        on="gutenberg_author_id",
-        how="inner",
+    data = DATA() if callable(DATA) else DATA
+    authors = data["df_authors"]
+    metadata = data["df_metadata"]
+    details = authors.drop(columns=["author"], errors="ignore")
+    return metadata[["gutenberg_author_id", "author", "language"]].merge(
+        details, on="gutenberg_author_id", how="left"
     )
+
+
+def plot_prep(over="birth_century"):
+    """Prepare one distinct language count for each author with a birth year."""
+    authors = get_data()
+    authors["language"] = authors["language"].str.split("/")
+    authors = authors.explode("language")
+    counts = authors.groupby("author")["language"].nunique()
+    authors = authors.drop_duplicates("author").copy()
+    authors["translation_count"] = authors["author"].map(counts)
+    authors["language"] = authors["translation_count"]
+    return birth_centuries(authors)
