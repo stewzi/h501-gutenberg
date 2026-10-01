@@ -20,13 +20,14 @@ venvs. An internet connection is needed to read the original CSV files.
 ## Package
 
 - `tt_gutenberg/authors.py`: public list and plot functions.
-- `tt_gutenberg/transform.py`: data loading, distinct language counts, centuries.
+- `tt_gutenberg/transform.py`: source loading, `get_data` merge, counts, and `plot_prep`.
 - `tt_gutenberg/__init__.py`: package exports.
 - `tests/`: local edge-case and package-structure checks.
 
 `list_authors(by_languages=True, alias=True)` excludes missing/blank aliases
 and returns aliases ordered by decreasing distinct language count. Duplicate
-books in the same language do not inflate counts. Multilingual works are split
+books in the same language do not inflate counts. Aliases shared by multiple
+author records are grouped together. Multilingual works are split
 on `/`; missing languages are excluded. Ties preserve author dataset order.
 The original language is included because the dataset does not distinguish it
 from translations. The chart uses authors, including those without aliases,

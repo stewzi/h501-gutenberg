@@ -56,7 +56,7 @@ def plot_translations(over="birth_century"):
         xlabel="Birth century (starting year)",
         ylabel="Mean number of distinct languages per author",
     )
-    ax.set_title("Average number of translations by birth century")
+    ax.set_title("Translation Count Over Birth Century")
     ax.tick_params(axis="x", rotation=90)
     ax.figure.set_size_inches(12, 5)
     ax.figure.tight_layout()
