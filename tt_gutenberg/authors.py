@@ -1,6 +1,6 @@
 import seaborn as sns
 
-from tt_gutenberg.transform import birth_centuries, count_languages, load_data
+from tt_gutenberg.transform import birth_centuries, get_data
 
 
 def list_authors(by_languages=False, alias=False):
@@ -9,8 +9,13 @@ def list_authors(by_languages=False, alias=False):
     Languages are counted once per author, even when many books share them.
     Authors with no recorded language receive zero. Ties retain source order.
     """
-    authors, metadata = load_data()
-    authors = count_languages(authors, metadata)
+    authors = get_data()
+    authors["language"] = authors["language"].str.split("/")
+    authors = authors.explode("language")
+    authors["language"] = authors["language"].str.strip()
+    counts = authors.groupby("author", sort=False)["language"].nunique()
+    authors = authors.drop_duplicates("author").copy()
+    authors["translation_count"] = authors["author"].map(counts)
     column = "alias" if alias else "author"
     names = authors[column].str.strip()
     authors = authors.loc[names.notna() & names.ne("")].copy()
@@ -26,9 +31,13 @@ def plot_translations(over="birth_century"):
     """Plot mean languages per author with a 95% bootstrap interval."""
     if over != "birth_century":
         raise ValueError("over must be 'birth_century'")
-    authors, metadata = load_data()
-    authors = birth_centuries(count_languages(authors, metadata))
-    authors = authors.drop_duplicates("gutenberg_author_id")
+    authors = get_data()
+    authors["language"] = authors["language"].str.split("/")
+    authors = authors.explode("language")
+    counts = authors.groupby("author")["language"].nunique()
+    authors = authors.drop_duplicates("author").copy()
+    authors["translation_count"] = authors["author"].map(counts)
+    authors = birth_centuries(authors)
     with sns.axes_style("whitegrid"):
         ax = sns.barplot(
             data=authors,

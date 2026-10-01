@@ -37,3 +37,23 @@ def birth_centuries(authors):
     result = result.dropna(subset=["birthdate"])
     result["birth_century"] = (result["birthdate"] // 100 * 100).astype(int)
     return result
+
+
+def DATA():
+    """Return the dataset base URL without reading data at import time."""
+    return (
+        "https://raw.githubusercontent.com/rfordatascience/tidytuesday/"
+        "main/data/2025/2025-06-03"
+    )
+
+
+def get_data():
+    """Merge author details with each work's language metadata."""
+    base = DATA() if callable(DATA) else DATA
+    authors = pd.read_csv(f"{base}/gutenberg_authors.csv")
+    metadata = pd.read_csv(f"{base}/gutenberg_metadata.csv")
+    return authors.merge(
+        metadata[["gutenberg_author_id", "language"]],
+        on="gutenberg_author_id",
+        how="inner",
+    )
